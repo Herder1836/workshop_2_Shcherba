@@ -31,5 +31,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/workshop_2_Shcherba:latest
+            ghcr.io/Herder1836/workshop_2_Shcherba:latest
             ghcr.io/${{ github.repository_owner }}/workshop_2_Shcherba:sha-${{ github.sha }}
