@@ -1,8 +1,8 @@
 name: Build and Push Frontend Docker Image
 
 on:
-  workflow_dispatch:     # ручной запуск
-  push:                  # запуск при пуше
+  workflow_dispatch:
+  push:
     branches:
       - main
       - 'feature/*'
@@ -15,7 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Логин в Container Registry
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -23,7 +22,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Сборка и пуш Docker-образа
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -31,5 +29,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/Herder1836/workshop_2_Shcherba:latest
-            ghcr.io/${{ github.repository_owner }}/workshop_2_Shcherba:sha-${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/workshop_2_shcherba:latest
+            ghcr.io/${{ github.repository_owner }}/workshop_2_shcherba:sha-${{ github.sha }}
