@@ -1,0 +1,59 @@
+name: Build and Push Frontend Docker Image
+
+on:
+  # 1) Ручний запуск через інтерфейс GitHub
+  workflow_dispatch:
+
+  # 2) Запуск при пуші в гілки main та feature/*
+  push:
+    branches:
+      - main
+      - 'feature/*'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # --- Клонування репозиторію ---
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --- Встановлення Node.js (потрібен для pnpm) ---
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # --- Встановлення pnpm + інсталяція залежностей + збірка (в одному скрипті!) ---
+      - name: Install deps and build with pnpm
+        run: |
+          npm install -g pnpm
+          pnpm install
+          pnpm run build
+
+      # --- Логін в GitHub Container Registry ---
+      # registry: ghcr.io
+      # username: з GitHub context (github.actor)
+      # password: вбудований GITHUB_TOKEN
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # --- Збірка та пуш Docker-образу ---
+      # context: поточна директорія (.)
+      # push: true
+      # tag: ghcr.io/{{логін}}/{{імʼя_репозиторію}}:latest
+      #   логін       -> github.repository_owner
+      #   репозиторій -> github.event.repository.name
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:sha-${{ github.sha }}
